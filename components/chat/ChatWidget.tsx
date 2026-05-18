@@ -450,7 +450,11 @@ export default function ChatWidget({ contextLabel }: ChatWidgetProps) {
                   }}>
                     <textarea
                       value={input}
-                      onChange={e => setInput(e.target.value)}
+                      onChange={e => {
+                        setInput(e.target.value);
+                        e.target.style.height = 'auto';
+                        e.target.style.height = e.target.scrollHeight + 'px';
+                      }}
                       onKeyDown={handleKeyDown}
                       placeholder={loading ? "AI is thinking..." : "Ask about your inbox..."}
                       rows={1}
