@@ -11,7 +11,9 @@ export async function GET(req: NextRequest) {
     return NextResponse.redirect(new URL("/mailflow/accounts?error=oauth_denied", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
   }
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
+  const host = req.headers.get("x-forwarded-host") || req.headers.get("host") || "";
+  const proto = req.headers.get("x-forwarded-proto") || "https";
+  const siteUrl = host ? `${proto}://${host}` : (process.env.NEXT_PUBLIC_SITE_URL || "");
   const redirectUri = `${siteUrl}/mailflow/api/auth/google/callback`;
 
   try {

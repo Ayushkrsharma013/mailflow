@@ -7,7 +7,26 @@
       "mcp__plugin_slack_slack__slack_create_conversation",
       "mcp__plugin_slack_slack__slack_send_message",
       "mcp__plugin_slack_slack__slack_create_canvas",
-      "Bash(node *)"
+      "Bash(node *)",
+      "Skill(superpowers:brainstorming)",
+      "Bash(bash *)",
+      "Bash(git commit -m ' *)",
+      "Skill(superpowers:writing-plans)",
+      "Skill(superpowers:subagent-driven-development)",
+      "mcp__plugin_supabase_supabase__apply_migration",
+      "mcp__plugin_supabase_supabase__list_tables",
+      "mcp__plugin_supabase_supabase__execute_sql",
+      "Bash(npx tsc *)",
+      "Bash(git *)",
+      "Bash(npm run *)",
+      "Skill(superpowers:verification-before-completion)",
+      "Bash(curl -s -o /dev/null -w \"%{http_code}\" http://localhost:3002/mailflow)",
+      "mcp__plugin_playwright_playwright__browser_navigate",
+      "mcp__plugin_playwright_playwright__browser_take_screenshot",
+      "Bash(curl *)",
+      "Skill(vercel:deploy)",
+      "Bash(vercel --prod --yes)",
+      "Bash(vercel env *)"
     ]
   }
 }
