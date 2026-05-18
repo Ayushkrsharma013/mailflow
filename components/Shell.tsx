@@ -1,6 +1,7 @@
 "use client"
 
 import Link from "next/link"
+import { useState } from "react"
 import { usePathname, useRouter } from "next/navigation"
 import { motion } from "framer-motion"
 import { createClient } from "@/lib/supabase/client"
@@ -17,6 +18,8 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   const router   = useRouter()
   const supabase = createClient()
 
+  const [signOutHovered, setSignOutHovered] = useState(false)
+
   async function handleLogout() {
     await supabase.auth.signOut()
     router.push("/login")
@@ -32,9 +35,9 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
       {/* ── Sidebar ── */}
       <aside style={{
-        width: 220, flexShrink: 0,
-        background: "rgba(0,0,0,0.96)",
-        borderRight: "1px solid rgba(0,212,255,0.08)",
+        width: 180, flexShrink: 0,
+        background: "#02050a",
+        borderRight: "1px solid rgba(0,212,255,0.06)",
         display: "flex", flexDirection: "column",
         padding: "20px 12px",
       }}>
@@ -98,12 +101,14 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         {/* Sign out */}
         <button
           onClick={handleLogout}
+          onMouseEnter={() => setSignOutHovered(true)}
+          onMouseLeave={() => setSignOutHovered(false)}
           style={{
             display: "flex", alignItems: "center", gap: 9,
             padding: "8px 10px", borderRadius: 8,
             background: "transparent", border: "none",
             cursor: "pointer", width: "100%",
-            fontSize: 13, color: "rgba(221,232,240,0.28)",
+            fontSize: 13, color: signOutHovered ? "rgba(221,232,240,0.45)" : "rgba(221,232,240,0.28)",
             transition: "color 0.15s ease",
           }}
         >
