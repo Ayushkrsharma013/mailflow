@@ -2,5 +2,10 @@ node_modules/
 .next/
 .env.local
 .env
+tsconfig.tsbuildinfo
 
 .vercel
+.superpowers/
+.playwright-mcp/
+*.png
+*.jpg
