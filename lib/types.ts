@@ -114,3 +114,26 @@ export interface DigestNotificationPayload {
     draftReply: string;
   }[];
 }
+
+export interface ChatMessage {
+  id: string;
+  conversation_id: string;
+  role: 'user' | 'assistant' | 'tool';
+  content: string | null;
+  tool_calls: ChatToolCall[] | null;
+  created_at: string;
+}
+
+export interface ChatToolCall {
+  name: string;
+  args: Record<string, unknown>;
+  result?: unknown;
+  status: 'pending' | 'done' | 'error';
+}
+
+export interface ChatConversation {
+  id: string;
+  user_id: string;
+  title: string | null;
+  created_at: string;
+}
