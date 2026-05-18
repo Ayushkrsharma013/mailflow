@@ -127,8 +127,13 @@ export async function runDigestForUser(userId: string): Promise<{ digestId: stri
       }
     }
 
+    let insertedActions: MailflowAction[] = [];
     if (actionRows.length > 0) {
-      await supabase.from("mailflow_actions").insert(actionRows);
+      const { data: ia } = await supabase
+        .from("mailflow_actions")
+        .insert(actionRows)
+        .select();
+      insertedActions = (ia as MailflowAction[]) || [];
     }
 
     await supabase
@@ -156,14 +161,14 @@ export async function runDigestForUser(userId: string): Promise<{ digestId: stri
       }
     }
 
-    const pendingActions = actionRows.map(a => {
+    const pendingActions = insertedActions.map(a => {
       const email = insertedEmails?.find(e => e.id === a.digest_email_id);
       return {
-        id: a.id || "",
+        id: a.id,
         fromName: email?.from_name || "Unknown",
         fromEmail: email?.from_email || "",
         subject: email?.subject || "(no subject)",
-        actionType: a.action_type || "send_reply",
+        actionType: a.action_type,
         draftReply: ((a.action_payload as Record<string, unknown>)?.replyBody as string) || "",
       };
     });

@@ -6,7 +6,7 @@ export async function GET() {
   const supabase = await createSupabaseServerClient();
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) {
-    return NextResponse.redirect(new URL("/mailflow/login?redirect=/mailflow/accounts", process.env.NEXT_PUBLIC_SITE_URL || ""));
+    return NextResponse.redirect(new URL("/mailflow/login?redirect=/accounts", process.env.NEXT_PUBLIC_SITE_URL || ""));
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";

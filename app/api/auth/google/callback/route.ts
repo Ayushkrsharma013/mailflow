@@ -8,7 +8,7 @@ export async function GET(req: NextRequest) {
   const error = req.nextUrl.searchParams.get("error");
 
   if (error || !code) {
-    return NextResponse.redirect(new URL("/mailflow/accounts?error=oauth_denied", req.url));
+    return NextResponse.redirect(new URL("/mailflow/accounts?error=oauth_denied", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
   }
 
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
@@ -17,13 +17,13 @@ export async function GET(req: NextRequest) {
   try {
     const result = await exchangeCodeForTokens(code, redirectUri);
     if (result.error || !result.tokens?.refresh_token) {
-      return NextResponse.redirect(new URL("/mailflow/accounts?error=token_exchange_failed", req.url));
+      return NextResponse.redirect(new URL("/mailflow/accounts?error=token_exchange_failed", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
     }
 
     const supabase = await createSupabaseServerClient();
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) {
-      return NextResponse.redirect(new URL("/mailflow/login", req.url));
+      return NextResponse.redirect(new URL("/mailflow/login", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
     }
 
     const profileRes = await fetch("https://www.googleapis.com/gmail/v1/users/me/profile", {
@@ -45,8 +45,8 @@ export async function GET(req: NextRequest) {
       is_active: true,
     }, { onConflict: "user_id, email" });
 
-    return NextResponse.redirect(new URL("/mailflow/accounts?success=connected", req.url));
+    return NextResponse.redirect(new URL("/mailflow/accounts?success=connected", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
   } catch {
-    return NextResponse.redirect(new URL("/mailflow/accounts?error=unexpected", req.url));
+    return NextResponse.redirect(new URL("/mailflow/accounts?error=unexpected", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
   }
 }

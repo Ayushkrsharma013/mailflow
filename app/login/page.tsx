@@ -26,7 +26,7 @@ function LoginForm() {
       return;
     }
 
-    router.push(`/mailflow${redirect}`);
+    router.push(redirect);
   }
 
   return (
