@@ -66,7 +66,7 @@ function EmailRow({ email, index }: { email: EmailItem; index: number }) {
         transition: "background 0.2s ease",
       }} />
 
-      <div style={{ padding: "12px 14px" }}>
+      <div style={{ padding: "9px 11px" }}>
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
           <AvatarCircle name={senderName} color={color} />
 
@@ -81,11 +81,10 @@ function EmailRow({ email, index }: { email: EmailItem; index: number }) {
               <span style={{
                 flexShrink: 0, fontSize: 9, fontWeight: 600,
                 fontFamily: "monospace", textTransform: "uppercase",
-                letterSpacing: "0.08em",
-                padding: "2px 7px", borderRadius: 4,
-                color, background: `${color}15`,
-                border: `1px solid ${color}28`,
+                letterSpacing: "0.06em",
+                color, display: "flex", alignItems: "center", gap: 4,
               }}>
+                <span style={{ width: 5, height: 5, borderRadius: "50%", background: color, display: "inline-block" }} />
                 {email.category.replace(/_/g, " ")}
               </span>
             </div>
