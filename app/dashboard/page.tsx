@@ -8,6 +8,7 @@ import DigestOverview from "@/components/dashboard/DigestOverview"
 import EmailList from "@/components/dashboard/EmailList"
 import ActionQueue from "@/components/dashboard/ActionQueue"
 import AccountSelector from "@/components/dashboard/AccountSelector"
+import ChatWidget from "@/components/chat/ChatWidget"
 
 function SkeletonPulse({ h, w = "100%", r = 10 }: { h: number; w?: string | number; r?: number }) {
   return (
@@ -203,6 +204,8 @@ export default function DashboardPage() {
           </p>
         </motion.div>
       )}
+
+      <ChatWidget contextLabel={data?.digest ? `Today's Digest · ${data.emails?.length || 0} emails` : undefined} />
     </Shell>
   )
 }
