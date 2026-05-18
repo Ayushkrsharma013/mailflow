@@ -138,7 +138,7 @@ export function LandingPage({ user }: { user: any }) {
             Features
           </a>
           <Link
-            href={user ? '/mailflow/dashboard' : '/mailflow/login'}
+            href={user ? '/dashboard' : '/login'}
             style={{
               fontSize: 12.5, fontWeight: 600,
               padding: '6px 18px', borderRadius: 999,
@@ -217,7 +217,7 @@ export function LandingPage({ user }: { user: any }) {
           {/* CTA row */}
           <div style={{ display: 'flex', gap: 12, marginBottom: 32, flexWrap: 'wrap' }}>
             <Link
-              href={user ? '/mailflow/dashboard' : '/mailflow/login'}
+              href={user ? '/dashboard' : '/login'}
               style={{
                 display: 'inline-flex', alignItems: 'center', gap: 8,
                 padding: '12px 24px', borderRadius: 10,
@@ -514,7 +514,7 @@ export function LandingPage({ user }: { user: any }) {
           </p>
 
           <Link
-            href={user ? '/mailflow/dashboard' : '/mailflow/login'}
+            href={user ? '/dashboard' : '/login'}
             style={{
               display: 'inline-flex', alignItems: 'center', gap: 8,
               padding: '14px 32px', borderRadius: 12,

@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "PowerShell(Get-ChildItem -Path \"D:\\\\Flow-Forges\\\\mailflow\" -Recurse | Where-Object { $_.FullName -notmatch \"node_modules\" -and $_.FullName -notmatch \"\\\\.next\" } | Select-Object FullName)",
+      "mcp__plugin_slack_slack__slack_search_channels",
+      "mcp__plugin_slack_slack__slack_search_users",
+      "mcp__plugin_slack_slack__slack_create_conversation",
+      "mcp__plugin_slack_slack__slack_send_message",
+      "mcp__plugin_slack_slack__slack_create_canvas",
+      "Bash(node *)"
+    ]
+  }
+}
