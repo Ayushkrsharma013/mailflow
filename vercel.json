@@ -1,0 +1,16 @@
+{
+  "crons": [
+    {
+      "path": "/mailflow/api/cron/digest",
+      "schedule": "7 6 * * *"
+    },
+    {
+      "path": "/mailflow/api/cron/digest",
+      "schedule": "7 12 * * *"
+    },
+    {
+      "path": "/mailflow/api/cron/digest",
+      "schedule": "7 18 * * *"
+    }
+  ]
+}
