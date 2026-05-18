@@ -65,9 +65,9 @@ export default function ActionQueue({ actions, onAction }: { actions: ActionItem
         </p>
         <span style={{
           fontSize: 10, fontWeight: 700, fontFamily: "monospace",
-          color: "#f97316",
-          background: "rgba(249,115,22,0.12)",
-          border: "1px solid rgba(249,115,22,0.2)",
+          color: "rgba(249,115,22,0.7)",
+          background: "rgba(249,115,22,0.06)",
+          border: "1px solid rgba(249,115,22,0.1)",
           padding: "1px 6px", borderRadius: 4,
         }}>
           {pending.length}
@@ -92,9 +92,9 @@ export default function ActionQueue({ actions, onAction }: { actions: ActionItem
               style={{
                 borderRadius: 10,
                 background: "rgba(249,115,22,0.04)",
-                borderLeft: "2.5px solid rgba(249,115,22,0.4)",
+                borderLeft: "2px solid rgba(249,115,22,0.35)",
                 border: "1px solid rgba(249,115,22,0.12)",
-                borderLeftWidth: 2.5,
+                borderLeftWidth: 2,
                 overflow: "hidden",
                 opacity: isLoading ? 0.5 : 1,
                 transition: "opacity 0.15s ease",
