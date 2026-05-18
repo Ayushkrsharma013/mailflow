@@ -2,10 +2,10 @@
 @import "tailwindcss";
 
 :root {
-  --bg: #020a14;
-  --surface: #0d1f3a;
-  --surface2: #0a1628;
-  --border: rgba(0,212,255,0.12);
+  --bg: #000000;
+  --surface: #080d18;
+  --surface2: #050a12;
+  --border: rgba(0,212,255,0.1);
   --text: #dde8f0;
   --muted: #5a7080;
   --accent: #00d4ff;

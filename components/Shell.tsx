@@ -25,7 +25,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
   return (
     <div style={{
       minHeight: "100vh", display: "flex",
-      background: "#020a14",
+      background: "#000000",
       fontFamily: "'Geist', ui-sans-serif, system-ui, sans-serif",
       color: "#dde8f0",
     }}>
@@ -33,7 +33,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       {/* ── Sidebar ── */}
       <aside style={{
         width: 220, flexShrink: 0,
-        background: "#030d1a",
+        background: "rgba(0,0,0,0.96)",
         borderRight: "1px solid rgba(0,212,255,0.08)",
         display: "flex", flexDirection: "column",
         padding: "20px 12px",

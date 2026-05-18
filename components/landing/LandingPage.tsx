@@ -3,6 +3,7 @@ import { motion, useScroll, useSpring } from 'framer-motion'
 import Link from 'next/link'
 import { Mail, Zap, Shield, MessageCircle, ArrowRight, Check, Lock, Sparkles } from 'lucide-react'
 import { Envelope3D } from './Envelope3D'
+import { GalaxyBg } from './GalaxyBg'
 
 const STEPS = [
   {
@@ -77,26 +78,20 @@ export function LandingPage({ user }: { user: any }) {
   return (
     <div style={{
       minHeight: '100vh',
-      background: '#020a14',
+      background: '#000000',
       color: '#dde8f0',
       fontFamily: 'ui-sans-serif, system-ui, -apple-system, sans-serif',
       overflowX: 'hidden',
     }}>
+
+      {/* Galaxy starfield background */}
+      <GalaxyBg />
 
       {/* Scroll progress bar */}
       <motion.div style={{
         position: 'fixed', top: 0, left: 0, right: 0, height: 2,
         background: 'linear-gradient(90deg, #00d4ff, #0088cc)',
         transformOrigin: 'left', scaleX, zIndex: 200,
-      }} />
-
-      {/* Global ambient background */}
-      <div style={{
-        position: 'fixed', inset: 0, pointerEvents: 'none', zIndex: 0,
-        background: `
-          radial-gradient(ellipse 900px 500px at 80% 15%, rgba(0,212,255,0.055) 0%, transparent 65%),
-          radial-gradient(ellipse 600px 400px at 20% 80%, rgba(139,92,246,0.04) 0%, transparent 65%)
-        `,
       }} />
 
       {/* ════════════ HEADER ════════════ */}
@@ -106,7 +101,7 @@ export function LandingPage({ user }: { user: any }) {
         transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
         style={{
           position: 'sticky', top: 0, zIndex: 50,
-          background: 'rgba(2,10,20,0.86)',
+          background: 'rgba(0,0,0,0.88)',
           backdropFilter: 'blur(18px)',
           WebkitBackdropFilter: 'blur(18px)',
           borderBottom: '1px solid rgba(0,212,255,0.1)',
