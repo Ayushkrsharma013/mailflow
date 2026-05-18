@@ -45,20 +45,15 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         {/* Logo */}
         <Link href="/dashboard" style={{
           textDecoration: "none",
-          display: "flex", alignItems: "center", gap: 9,
-          padding: "4px 8px", marginBottom: 28,
+          display: "flex", alignItems: "center",
+          padding: "4px 8px", marginBottom: 24,
         }}>
-          <div style={{
-            width: 28, height: 28, borderRadius: 7,
-            background: "linear-gradient(135deg,rgba(0,212,255,0.22),rgba(0,136,204,0.08))",
-            border: "1px solid rgba(0,212,255,0.22)",
-            display: "flex", alignItems: "center", justifyContent: "center",
-          }}>
-            <Mail size={14} style={{ color: "#00d4ff" }} />
-          </div>
-          <span style={{ fontSize: 14, fontWeight: 700, color: "#e8f4ff", letterSpacing: "-0.02em" }}>
-            MailFlow
-          </span>
+          <img
+            src="/mailflow/logo/mailflow-logo-dark.svg"
+            alt="MailFlow"
+            width={140}
+            height="auto"
+          />
         </Link>
 
         {/* Nav */}

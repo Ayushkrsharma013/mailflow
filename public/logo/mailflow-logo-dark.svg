@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 260 60" fill="none">
+  <!-- Envelope body -->
+  <rect x="6" y="16" width="30" height="20" rx="3" stroke="#00D4FF" stroke-width="1.5" fill="#00D4FF" fill-opacity="0.15"/>
+  <!-- Envelope flap -->
+  <polyline points="6,16 21,28 36,16" stroke="#00D4FF" stroke-width="1.5" fill="none" stroke-linejoin="round"/>
+  <!-- Arrow emerging right from envelope -->
+  <line x1="36" y1="26" x2="46" y2="26" stroke="#00D4FF" stroke-width="2" stroke-linecap="round"/>
+  <polyline points="42,22 47,26 42,30" stroke="#00D4FF" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+
+  <!-- Wordmark -->
+  <text x="52" y="38" font-family="system-ui, sans-serif" font-size="22" font-weight="600" fill="#DDE8F0" letter-spacing="-0.02em">Mail</text>
+  <text x="96" y="38" font-family="system-ui, sans-serif" font-size="22" font-weight="300" fill="#00D4FF" letter-spacing="-0.02em">Flow</text>
+
+  <!-- Tagline -->
+  <text x="52" y="50" font-family="system-ui, sans-serif" font-size="10" font-weight="600" fill="#3A6070" letter-spacing="2">AI INBOX</text>
+</svg>
