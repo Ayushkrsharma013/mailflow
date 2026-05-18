@@ -38,16 +38,55 @@ export async function GET(req: NextRequest) {
     const encryptedAccess = await encryptToken(result.tokens.access_token);
     const expiresAt = new Date(Date.now() + result.tokens.expires_in * 1000).toISOString();
 
-    await supabase.from("gmail_accounts").upsert({
+    // Upsert Gmail account — check for existing row first since there's
+    // no unique constraint on (user_id, email) for the upsert onConflict clause.
+    const { data: existingAccount } = await supabase
+      .from("gmail_accounts")
+      .select("id")
+      .eq("user_id", user.id)
+      .eq("email", email)
+      .maybeSingle();
+
+    const accountPayload = {
       user_id: user.id,
       email,
       google_refresh_token: encryptedRefresh,
       google_access_token: encryptedAccess,
       token_expires_at: expiresAt,
       is_active: true,
-    }, { onConflict: "user_id, email" });
+    };
 
-    return NextResponse.redirect(new URL("/mailflow/accounts?success=connected", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
+    if (existingAccount) {
+      await supabase
+        .from("gmail_accounts")
+        .update(accountPayload)
+        .eq("id", existingAccount.id);
+    } else {
+      await supabase
+        .from("gmail_accounts")
+        .insert(accountPayload);
+    }
+
+    // Update onboarding progress — mark Gmail connection step complete
+    const { data: existingProgress } = await supabase
+      .from("onboarding_progress")
+      .select("id")
+      .eq("user_id", user.id)
+      .maybeSingle();
+
+    if (existingProgress) {
+      await supabase
+        .from("onboarding_progress")
+        .update({ current_step: 3 })
+        .eq("id", existingProgress.id);
+    } else {
+      await supabase
+        .from("onboarding_progress")
+        .insert({ user_id: user.id, current_step: 3, completed: false });
+    }
+
+    // Redirect back to onboarding so user continues from step 3 (Channels)
+    return NextResponse.redirect(new URL("/mailflow/onboarding", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
   } catch {
     return NextResponse.redirect(new URL("/mailflow/accounts?error=unexpected", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
   }

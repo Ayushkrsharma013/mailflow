@@ -15,6 +15,7 @@ const STEPS = [
 
 export default function OnboardingPage() {
   const [step, setStep] = useState(1);
+  const [stepLoaded, setStepLoaded] = useState(false);
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -57,6 +58,30 @@ export default function OnboardingPage() {
     setStep(2);
     setLoading(false);
   }
+
+  // On mount, resume from saved onboarding step (e.g. returning from OAuth callback)
+  useEffect(() => {
+    async function loadStep() {
+      const { data: { user } } = await supabase.auth.getUser();
+      if (!user) return;
+
+      const { data: progress } = await supabase
+        .from("onboarding_progress")
+        .select("current_step, completed")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (progress?.completed) {
+        router.replace("/dashboard");
+        return;
+      }
+      if (progress?.current_step) {
+        setStep(progress.current_step);
+      }
+      setStepLoaded(true);
+    }
+    loadStep();
+  }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function checkGmail() {
     const res = await fetch("/mailflow/api/gmail/accounts");
@@ -114,6 +139,13 @@ export default function OnboardingPage() {
           </div>
         ))}
       </div>
+    );
+  }
+
+  // Wait for saved progress to load before rendering to avoid flashing step 1
+  if (!stepLoaded) {
+    return (
+      <div style={{ minHeight: "100vh", background: "#000000" }} />
     );
   }
 
