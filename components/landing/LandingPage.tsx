@@ -75,6 +75,27 @@ export function LandingPage({ user }: { user: any }) {
   const { scrollYProgress } = useScroll()
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30 })
 
+  const PRICING_TIERS = [
+    {
+      name: "Starter", price: "Free", period: "",
+      desc: "For individuals getting started with AI inbox management.",
+      features: ["1 Gmail account", "1 digest per day", "Basic AI replies", "Web dashboard"],
+      cta: "Get Started", href: "/login", featured: false,
+    },
+    {
+      name: "Pro", price: "$19", period: "/mo",
+      desc: "For professionals who want full control over their inbox.",
+      features: ["3 Gmail accounts", "3 digests per day", "Custom tone AI replies", "Telegram notifications", "Slack notifications", "Email support"],
+      cta: "Start Free Trial", href: "/login", featured: true,
+    },
+    {
+      name: "Business", price: "$49", period: "/mo",
+      desc: "For teams and agencies managing multiple inboxes.",
+      features: ["Unlimited Gmail accounts", "Hourly digests", "Priority AI processing", "Telegram + Slack", "Priority chat support", "Team management"],
+      cta: "Contact Us", href: "/login", featured: false,
+    },
+  ];
+
   return (
     <div style={{
       minHeight: '100vh',
@@ -136,6 +157,9 @@ export function LandingPage({ user }: { user: any }) {
           </a>
           <a href="#features" style={{ fontSize: 12.5, color: 'rgba(221,232,240,0.55)', textDecoration: 'none' }}>
             Features
+          </a>
+          <a href="#pricing" style={{ fontSize: 12.5, color: 'rgba(221,232,240,0.55)', textDecoration: 'none' }}>
+            Pricing
           </a>
           <Link
             href={user ? '/dashboard' : '/login'}
@@ -466,6 +490,67 @@ export function LandingPage({ user }: { user: any }) {
               )
             })}
           </div>
+        </div>
+      </section>
+
+      {/* ════════════ PRICING ════════════ */}
+      <section id="pricing" style={{ position: "relative", zIndex: 1, maxWidth: 1100, margin: "0 auto", padding: "88px 28px" }}>
+        <motion.div
+          initial={{ opacity: 0, y: 14 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true }}
+          transition={{ duration: 0.5 }}
+          style={{ textAlign: "center", marginBottom: 52 }}
+        >
+          <p style={{ fontSize: 10.5, fontWeight: 600, letterSpacing: "0.12em", color: "rgba(0,212,255,0.6)", fontFamily: "monospace", marginBottom: 12, textTransform: "uppercase" }}>
+            PRICING
+          </p>
+          <h2 style={{ fontSize: "clamp(22px, 3.5vw, 34px)", fontWeight: 700, color: "#edf6ff", letterSpacing: "-0.025em" }}>
+            Simple, transparent pricing.
+          </h2>
+        </motion.div>
+
+        <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fit, minmax(280px, 1fr))", gap: 18, alignItems: "start" }}>
+          {PRICING_TIERS.map((tier, i) => (
+            <motion.div
+              key={tier.name}
+              initial={{ opacity: 0, y: 20 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true }}
+              transition={{ delay: i * 0.1, duration: 0.45, ease: [0.22, 1, 0.36, 1] }}
+              style={{
+                borderRadius: 16, padding: "32px 28px",
+                background: tier.featured ? "rgba(0,212,255,0.04)" : "rgba(255,255,255,0.015)",
+                border: tier.featured ? "1px solid rgba(0,212,255,0.2)" : "1px solid rgba(255,255,255,0.06)",
+                boxShadow: tier.featured ? "0 0 32px rgba(0,212,255,0.08), 0 0 0 1px rgba(0,212,255,0.04) inset" : "none",
+                position: "relative",
+                transform: tier.featured ? "scale(1.03)" : "scale(1)",
+              }}
+            >
+              {tier.featured && (
+                <div style={{ position: "absolute", top: -11, left: "50%", transform: "translateX(-50%)", padding: "3px 14px", borderRadius: 99, background: "linear-gradient(135deg, #00b4db, #0083b0)", fontSize: 10, fontWeight: 600, color: "#fff", fontFamily: "monospace", letterSpacing: "0.06em" }}>
+                  MOST POPULAR
+                </div>
+              )}
+              <h3 style={{ fontSize: 16, fontWeight: 700, color: "#edf6ff", marginBottom: 6 }}>{tier.name}</h3>
+              <p style={{ fontSize: 12, color: "rgba(221,232,240,0.4)", lineHeight: 1.55, marginBottom: 18 }}>{tier.desc}</p>
+              <div style={{ marginBottom: 20 }}>
+                <span style={{ fontSize: 34, fontWeight: 700, color: "#edf6ff", letterSpacing: "-0.03em" }}>{tier.price}</span>
+                <span style={{ fontSize: 14, color: "rgba(221,232,240,0.3)", marginLeft: 2 }}>{tier.period}</span>
+              </div>
+              <ul style={{ listStyle: "none", padding: 0, margin: "0 0 24px", display: "flex", flexDirection: "column", gap: 10 }}>
+                {tier.features.map(f => (
+                  <li key={f} style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                    <Check size={12} style={{ color: tier.featured ? "#00d4ff" : "rgba(0,212,255,0.3)", flexShrink: 0 }} />
+                    <span style={{ fontSize: 12.5, color: "rgba(221,232,240,0.55)" }}>{f}</span>
+                  </li>
+                ))}
+              </ul>
+              <a href={tier.href} style={{ display: "block", textAlign: "center", padding: "10px 20px", borderRadius: 9, background: tier.featured ? "linear-gradient(135deg, #00b4db, #0083b0)" : "rgba(255,255,255,0.04)", border: tier.featured ? "none" : "1px solid rgba(255,255,255,0.1)", color: tier.featured ? "#fff" : "rgba(221,232,240,0.5)", fontSize: 13, fontWeight: 600, textDecoration: "none", fontFamily: "inherit", boxShadow: tier.featured ? "0 0 20px rgba(0,212,255,0.2)" : "none" }}>
+                {tier.cta}
+              </a>
+            </motion.div>
+          ))}
         </div>
       </section>
 
