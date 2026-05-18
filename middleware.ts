@@ -37,6 +37,32 @@ export async function middleware(req: NextRequest) {
     return NextResponse.redirect(loginUrl);
   }
 
+  // Onboarding redirect — redirect to onboarding if user hasn't completed it
+  if (user && !isPublic && normalizedPath !== "/onboarding" && !isApi) {
+    const supabaseAdmin = createServerClient(supabaseUrl, process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!, {
+      cookies: {
+        getAll() { return req.cookies.getAll(); },
+        setAll(cookiesToSet) {
+          cookiesToSet.forEach(({ name, value, options }) => res.cookies.set(name, value, options));
+        },
+      },
+    });
+
+    try {
+      const { data: onboarding } = await supabaseAdmin
+        .from("onboarding_progress")
+        .select("completed")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (!onboarding || !onboarding.completed) {
+        return NextResponse.redirect(new URL("/mailflow/onboarding", req.url));
+      }
+    } catch {
+      // If query fails (table might not exist yet), skip onboarding check
+    }
+  }
+
   return res;
 }
 
