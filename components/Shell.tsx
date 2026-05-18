@@ -19,7 +19,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
 
   async function handleLogout() {
     await supabase.auth.signOut()
-    router.push("/mailflow/login")
+    router.push("/login")
   }
 
   return (
@@ -40,7 +40,7 @@ export default function Shell({ children }: { children: React.ReactNode }) {
       }}>
 
         {/* Logo */}
-        <Link href="/mailflow/dashboard" style={{
+        <Link href="/dashboard" style={{
           textDecoration: "none",
           display: "flex", alignItems: "center", gap: 9,
           padding: "4px 8px", marginBottom: 28,
@@ -61,12 +61,12 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         {/* Nav */}
         <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
           {NAV_ITEMS.map(item => {
-            const active = pathname === `/mailflow${item.href}`
+            const active = pathname === `/${item.href}`
             const Icon   = item.icon
             return (
               <Link
                 key={item.href}
-                href={`/mailflow${item.href}`}
+                href={`/${item.href}`}
                 style={{
                   position: "relative",
                   display: "flex", alignItems: "center", gap: 9,
