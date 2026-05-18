@@ -61,12 +61,12 @@ export default function Shell({ children }: { children: React.ReactNode }) {
         {/* Nav */}
         <nav style={{ flex: 1, display: "flex", flexDirection: "column", gap: 2 }}>
           {NAV_ITEMS.map(item => {
-            const active = pathname === `/${item.href}`
+            const active = pathname === `${item.href}`
             const Icon   = item.icon
             return (
               <Link
                 key={item.href}
-                href={`/${item.href}`}
+                href={`${item.href}`}
                 style={{
                   position: "relative",
                   display: "flex", alignItems: "center", gap: 9,
