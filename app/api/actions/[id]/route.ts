@@ -59,6 +59,32 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         .eq("id", id);
     }
 
+    // Notify Telegram on web rejection
+    if (newStatus === "rejected" && body.approvedBy === "web") {
+      const { data: settings } = await supabase
+        .from("mailflow_settings")
+        .select("telegram_chat_id")
+        .eq("user_id", user.id)
+        .maybeSingle();
+
+      if (settings?.telegram_chat_id) {
+        const { data: email } = await supabase
+          .from("digest_emails")
+          .select("from_name, subject")
+          .eq("id", action.digest_email_id)
+          .single();
+
+        const { notifyTelegramActionResolved } = await import("@/lib/notify");
+        notifyTelegramActionResolved(
+          settings.telegram_chat_id,
+          (email as { from_name?: string } | null)?.from_name || "Unknown",
+          (email as { subject?: string } | null)?.subject || "(no subject)",
+          "rejected",
+          "web"
+        ).catch(() => {});
+      }
+    }
+
     if (newStatus === "approved") {
       const refreshed = await supabase.from("mailflow_actions").select("*").eq("id", id).single();
       if (refreshed.data) {
@@ -66,6 +92,33 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
         if (!result.success) {
           return NextResponse.json({ status: "approved", execution: "failed", error: result.error });
         }
+
+        // Notify Telegram if approved via web
+        if (body.approvedBy === "web") {
+          const { data: settings } = await supabase
+            .from("mailflow_settings")
+            .select("telegram_chat_id")
+            .eq("user_id", user.id)
+            .maybeSingle();
+
+          if (settings?.telegram_chat_id) {
+            const { data: email } = await supabase
+              .from("digest_emails")
+              .select("from_name, subject")
+              .eq("id", action.digest_email_id)
+              .single();
+
+            const { notifyTelegramActionResolved } = await import("@/lib/notify");
+            notifyTelegramActionResolved(
+              settings.telegram_chat_id,
+              (email as { from_name?: string } | null)?.from_name || "Unknown",
+              (email as { subject?: string } | null)?.subject || "(no subject)",
+              "approved",
+              "web"
+            ).catch(() => {});
+          }
+        }
+
         return NextResponse.json({ status: "approved", execution: "success" });
       }
     }

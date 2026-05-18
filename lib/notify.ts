@@ -127,6 +127,27 @@ export async function sendDigestSlack(webhookUrl: string, payload: DigestNotific
   });
 }
 
+export async function notifyTelegramActionResolved(
+  chatId: string,
+  fromName: string,
+  subject: string,
+  status: "approved" | "rejected",
+  source: string
+): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+
+  const emoji = status === "approved" ? "✅" : "❌";
+  const label = status === "approved" ? "Approved" : "Rejected";
+  const text = `${emoji} *${label} via ${source}*\n\n*${fromName}* — "${subject}"\n${status === "approved" ? "Reply has been sent." : "Reply was discarded."}`;
+
+  await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ chat_id: chatId, text, parse_mode: "Markdown" }),
+  });
+}
+
 function getTimeLabel(): string {
   const hour = new Date().getHours();
   if (hour < 12) return "Morning";
