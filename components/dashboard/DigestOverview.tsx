@@ -28,8 +28,8 @@ export default function DigestOverview({ digest }: { digest: Record<string, unkn
               transition={{ delay: i * 0.07, duration: 0.38, ease: [0.22, 1, 0.36, 1] }}
               style={{
                 borderRadius: 12, overflow: "hidden",
-                background: `${color}09`,
-                border: `1px solid ${color}22`,
+                background: `${color}06`,
+                borderTop: `2px solid ${color}55`,
               }}
             >
               {/* Accent strip */}
@@ -48,6 +48,7 @@ export default function DigestOverview({ digest }: { digest: Record<string, unkn
                 <p style={{
                   fontSize: 28, fontWeight: 700, color: "#edf6ff",
                   letterSpacing: "-0.03em", lineHeight: 1, marginBottom: 12,
+                  fontVariantNumeric: "tabular-nums",
                 }}>
                   {count}
                 </p>
@@ -61,7 +62,7 @@ export default function DigestOverview({ digest }: { digest: Record<string, unkn
                     style={{ height: "100%", background: color, borderRadius: 2 }}
                   />
                 </div>
-                <p style={{ fontSize: 9, color: "rgba(221,232,240,0.28)", marginTop: 5 }}>
+                <p style={{ fontSize: 9, color: "rgba(221,232,240,0.18)", marginTop: 5 }}>
                   {pct}%
                 </p>
               </div>
