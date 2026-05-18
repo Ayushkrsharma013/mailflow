@@ -1,6 +1,5 @@
 import type { GmailMessage, CategorizedEmail } from "@/lib/types";
-
-const GEMINI_API = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent";
+import { GEMINI_API, extractGeminiText } from "@/lib/gemini";
 
 const CATEGORIZE_SYSTEM_PROMPT = `You are an expert email triage assistant. Given a list of unread emails, categorize each one.
 
@@ -138,10 +137,3 @@ Write a short, clear summary. No preamble, no sign-off.`;
   return extractGeminiText(data).trim();
 }
 
-function extractGeminiText(data: Record<string, unknown>): string {
-  const candidates = data.candidates as Array<{ content?: { parts?: Array<{ text?: string; thought?: boolean }> } }> | undefined;
-  if (!candidates?.length) return "";
-  const parts = candidates[0]?.content?.parts || [];
-  const textPart = parts.find(p => !p.thought);
-  return textPart?.text || parts[0]?.text || "";
-}
