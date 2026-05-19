@@ -1,8 +1,14 @@
 import { NextRequest, NextResponse } from "next/server";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createClient } from "@supabase/supabase-js";
 import { executeAction } from "@/lib/actions";
 import { runDigestForUser } from "@/lib/digest";
 import { sendDigestTelegram } from "@/lib/notify";
+
+function getAdminClient() {
+  const url = (process.env.NEXT_PUBLIC_SUPABASE_URL || "").replace(/\/rest\/v1\/?$/, "");
+  const key = process.env.SUPABASE_SERVICE_ROLE_KEY || "";
+  return createClient(url, key);
+}
 
 export async function POST(req: NextRequest) {
   try {
@@ -43,12 +49,25 @@ export async function POST(req: NextRequest) {
       const msgChat2 = (message.chat as Record<string, unknown> | undefined);
       const chatId = String(msgChat2?.id || "");
 
-      if (text === "/start" || text === "/check-inbox") {
-        const supabase = await createSupabaseServerClient();
+      if (text === "/start") {
+        const supabase = getAdminClient();
         const { data: settings } = await supabase
           .from("mailflow_settings")
           .select("user_id")
-          .eq("telegram_chat_id", chatId)
+          .eq("telegram_chat_id", chatId.toString())
+          .maybeSingle();
+
+        if (!settings) {
+          await sendTelegramReply(chatId, "Your Telegram account is not linked. Go to MailFlow Settings to link it.");
+        } else {
+          await sendTelegramReply(chatId, "✅ Your MailFlow account is linked! Send /check-inbox to run your digest.");
+        }
+      } else if (text === "/check-inbox") {
+        const supabase = getAdminClient();
+        const { data: settings } = await supabase
+          .from("mailflow_settings")
+          .select("user_id")
+          .eq("telegram_chat_id", chatId.toString())
           .maybeSingle();
 
         if (!settings) {
@@ -75,7 +94,7 @@ export async function POST(req: NextRequest) {
 }
 
 async function handleTelegramApproval(actionId: string, status: "approved" | "rejected", approvedBy: string) {
-  const supabase = await createSupabaseServerClient();
+  const supabase = getAdminClient();
   const { data: action } = await supabase
     .from("mailflow_actions")
     .select("*")
