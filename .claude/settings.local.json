@@ -26,7 +26,8 @@
       "Bash(curl *)",
       "Skill(vercel:deploy)",
       "Bash(vercel --prod --yes)",
-      "Bash(vercel env *)"
+      "Bash(vercel env *)",
+      "Skill(commit-commands:commit-push-pr)"
     ]
   }
 }

@@ -8,7 +8,7 @@ export async function GET() {
 
   const { data: accounts } = await supabase
     .from("gmail_accounts")
-    .select("id, email, is_active, last_synced_at, created_at")
+    .select("id, email, is_active, last_synced_at, created_at, picture_url")
     .eq("user_id", user.id)
     .order("created_at", { ascending: false });
 
