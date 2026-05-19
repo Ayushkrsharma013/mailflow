@@ -201,3 +201,152 @@ function buildEmail({ to, subject, body, threadId }: { to: string; subject: stri
 
   return Buffer.from(lines.join("\r\n")).toString("base64url");
 }
+
+// ─── Task 5: History API functions ───────────────────────────────────────────
+
+export interface HistoryResult {
+  messages: GmailMessage[];
+  newHistoryId: string | null;
+}
+
+export async function getGmailHistoryId(account: GmailAccount): Promise<string | null> {
+  const res = await gmailRequest(account, "/profile");
+  if (!res.ok) return null;
+  const data = (await res.json()) as { historyId?: string };
+  return data.historyId ?? null;
+}
+
+export async function fetchNewMessagesSinceHistory(
+  account: GmailAccount
+): Promise<HistoryResult> {
+  if (!account.gmail_history_id) {
+    const messages = await fetchUnreadMessages(account, 50);
+    return { messages, newHistoryId: null };
+  }
+
+  const res = await gmailRequest(
+    account,
+    `/history?startHistoryId=${account.gmail_history_id}&historyTypes=messageAdded&labelId=INBOX`
+  );
+
+  if (!res.ok) {
+    // historyId too old (410 Gone) — fall back and reset
+    const messages = await fetchUnreadMessages(account, 50);
+    return { messages, newHistoryId: null };
+  }
+
+  const data = (await res.json()) as {
+    history?: { messagesAdded?: { message: { id: string; threadId: string } }[] }[];
+    historyId?: string;
+  };
+
+  const newHistoryId = data.historyId ?? null;
+
+  if (!data.history?.length) {
+    return { messages: [], newHistoryId };
+  }
+
+  const messageIds = new Set<string>();
+  for (const h of data.history) {
+    for (const added of h.messagesAdded ?? []) {
+      messageIds.add(added.message.id);
+    }
+  }
+
+  const ids = [...messageIds];
+  const messages: GmailMessage[] = [];
+
+  for (let i = 0; i < ids.length; i += 10) {
+    const batch = ids.slice(i, i + 10);
+    const results = await Promise.all(
+      batch.map(async id => {
+        const r = await gmailRequest(account, `/messages/${id}?format=full`);
+        if (!r.ok) return null;
+        const detail = (await r.json()) as Record<string, unknown>;
+        return parseGmailMessage(id, (detail.threadId as string) || "", detail);
+      })
+    );
+    messages.push(...results.filter((m): m is GmailMessage => m !== null));
+  }
+
+  return { messages, newHistoryId };
+}
+
+export async function fetchMessagesPage(
+  account: GmailAccount,
+  query: string,
+  maxResults: number,
+  pageToken?: string
+): Promise<{ messages: GmailMessage[]; nextPageToken?: string }> {
+  const params = new URLSearchParams({ q: query, maxResults: String(maxResults) });
+  if (pageToken) params.set("pageToken", pageToken);
+
+  const res = await gmailRequest(account, `/messages?${params.toString()}`);
+  if (!res.ok) return { messages: [] };
+
+  const data = (await res.json()) as {
+    messages?: { id: string; threadId: string }[];
+    nextPageToken?: string;
+  };
+
+  if (!data.messages?.length) return { messages: [], nextPageToken: undefined };
+
+  const messages: GmailMessage[] = [];
+  for (let i = 0; i < data.messages.length; i += 10) {
+    const batch = data.messages.slice(i, i + 10);
+    const results = await Promise.all(
+      batch.map(async ({ id, threadId }) => {
+        const r = await gmailRequest(account, `/messages/${id}?format=full`);
+        if (!r.ok) return null;
+        const detail = (await r.json()) as Record<string, unknown>;
+        return parseGmailMessage(id, threadId, detail);
+      })
+    );
+    messages.push(...results.filter((m): m is GmailMessage => m !== null));
+  }
+
+  return { messages, nextPageToken: data.nextPageToken };
+}
+
+// ─── Task 6: Gmail Watch functions ───────────────────────────────────────────
+
+export async function registerGmailWatch(account: GmailAccount): Promise<boolean> {
+  const topicName = process.env.GOOGLE_PUBSUB_TOPIC;
+  if (!topicName) {
+    console.warn("[Gmail Watch] GOOGLE_PUBSUB_TOPIC not set — skipping watch registration");
+    return false;
+  }
+
+  const res = await gmailRequest(account, "/watch", {
+    method: "POST",
+    body: JSON.stringify({ topicName, labelIds: ["INBOX"] }),
+  });
+
+  if (!res.ok) {
+    const err = (await res.json()) as Record<string, unknown>;
+    console.error(`[Gmail Watch] Failed to register for ${account.email}:`, JSON.stringify(err));
+    return false;
+  }
+
+  const data = (await res.json()) as {
+    historyId?: string;
+    expiration?: string;
+    resourceId?: string;
+  };
+
+  const supabase = createSupabaseAdminClient();
+  await supabase.from("gmail_accounts").update({
+    gmail_history_id: data.historyId ?? account.gmail_history_id,
+    watch_expiry: data.expiration
+      ? new Date(Number(data.expiration)).toISOString()
+      : null,
+    watch_resource_id: data.resourceId ?? null,
+  }).eq("id", account.id);
+
+  console.log(`[Gmail Watch] Registered for ${account.email}, expires ${data.expiration}`);
+  return true;
+}
+
+export async function stopGmailWatch(account: GmailAccount): Promise<void> {
+  await gmailRequest(account, "/stop", { method: "POST" }).catch(() => {});
+}
