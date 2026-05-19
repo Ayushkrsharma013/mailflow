@@ -53,6 +53,8 @@ export default function DashboardPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [data, setData] = useState<{ digest: Record<string, any>; emails: any[]; actions: any[] } | null>(null)
   const [stats, setStats] = useState<{ emailsToday: number; accounts: number; pending: number; handled: number } | null>(null)
+  const [accounts, setAccounts] = useState<{ id: string; email: string; is_active: boolean }[]>([])
+  const [activeAccountId, setActiveAccountId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [running, setRunning] = useState(false)
   const [error, setError] = useState("")
@@ -69,12 +71,14 @@ export default function DashboardPage() {
       // Derive stats
       const accountsRes = await fetch("/mailflow/api/gmail/accounts")
       const accountsData = await accountsRes.json()
-      const activeAccounts = (accountsData.accounts || []).filter((a: { is_active: boolean }) => a.is_active).length
+      const allAccounts: { id: string; email: string; is_active: boolean }[] = accountsData.accounts || []
+      setAccounts(allAccounts)
+      const activeCount = allAccounts.filter(a => a.is_active).length
       const pending = (json.actions || []).filter((a: { status: string }) => a.status === "pending").length
       const total = (json.emails || []).length
       const handled = total > 0 ? Math.round(((total - pending) / total) * 100) : 100
 
-      setStats({ emailsToday: total, accounts: activeAccounts, pending, handled })
+      setStats({ emailsToday: total, accounts: activeCount, pending, handled })
     } catch {
       setError("Failed to load digest data.")
     }
@@ -96,11 +100,26 @@ export default function DashboardPage() {
 
   useEffect(() => { fetchLatest() }, [])
 
+  const activeAccounts = accounts.filter(a => a.is_active)
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const visibleEmails: any[] = data
+    ? (activeAccountId ? data.emails.filter((e: any) => e.account_id === activeAccountId) : data.emails)
+    : []
+  const visibleEmailIds = new Set(visibleEmails.map((e: any) => e.id as string))
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const visibleActions: any[] = data
+    ? (activeAccountId ? data.actions.filter((a: any) => visibleEmailIds.has(a.digest_email_id)) : data.actions)
+    : []
+
+  const visiblePending = visibleActions.filter((a: any) => a.status === "pending").length
+  const visibleTotal = visibleEmails.length
+  const visibleHandled = visibleTotal > 0 ? Math.round(((visibleTotal - visiblePending) / visibleTotal) * 100) : 100
+
   const STAT_CARDS = [
-    { label: "Emails Today", value: stats?.emailsToday ?? "—", icon: Inbox, color: "#06b6d4" },
-    { label: "Accounts", value: stats?.accounts ?? "—", icon: Mail, color: "#00d4ff" },
-    { label: "Pending", value: stats?.pending ?? "—", icon: Clock, color: "#f97316" },
-    { label: "Auto-handled", value: stats?.handled != null ? `${stats.handled}%` : "—", icon: Zap, color: "#00ff88" },
+    { label: "Emails Today", value: stats ? visibleTotal : "—", icon: Inbox, color: "#06b6d4" },
+    { label: "Accounts", value: stats ? (activeAccountId ? 1 : activeAccounts.length) : "—", icon: Mail, color: "#00d4ff" },
+    { label: "Pending", value: stats ? visiblePending : "—", icon: Clock, color: "#f97316" },
+    { label: "Auto-handled", value: stats ? `${visibleHandled}%` : "—", icon: Zap, color: "#00ff88" },
   ]
 
   return (
@@ -137,7 +156,12 @@ export default function DashboardPage() {
         </div>
 
         <div style={{ display: "flex", alignItems: "center", gap: 10 }}>
-          <AccountSelector />
+          <AccountSelector
+            accounts={activeAccounts}
+            emails={data?.emails || []}
+            activeId={activeAccountId}
+            onSelect={setActiveAccountId}
+          />
           <motion.button
             whileHover={{ scale: 1.02 }}
             whileTap={{ scale: 0.97 }}
@@ -225,10 +249,10 @@ export default function DashboardPage() {
         <LoadingSkeleton />
       ) : data?.digest ? (
         <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 0.3 }}>
-          <DigestOverview digest={data.digest} />
+          <DigestOverview digest={data.digest} emails={visibleEmails} />
           <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 20, marginTop: 24 }}>
-            <EmailList emails={data.emails} />
-            <ActionQueue actions={data.actions} onAction={() => fetchLatest()} />
+            <EmailList emails={visibleEmails} />
+            <ActionQueue actions={visibleActions} onAction={() => fetchLatest()} />
           </div>
 
           {/* Recent activity feed */}
