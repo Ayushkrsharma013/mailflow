@@ -7,6 +7,7 @@ export interface GmailAccount {
   token_expires_at: string | null;
   is_active: boolean;
   last_synced_at: string | null;
+  picture_url: string | null;
   created_at: string;
 }
 

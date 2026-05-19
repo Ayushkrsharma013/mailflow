@@ -38,6 +38,7 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/mailflow/accounts?error=profile_fetch_failed", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
     }
     const email = (profileData.email as string) || "unknown@gmail.com";
+    const pictureUrl = (profileData.picture as string) || null;
 
     const encryptedRefresh = await encryptToken(result.tokens.refresh_token);
     const encryptedAccess = await encryptToken(result.tokens.access_token);
@@ -59,6 +60,7 @@ export async function GET(req: NextRequest) {
       google_access_token: encryptedAccess,
       token_expires_at: expiresAt,
       is_active: true,
+      picture_url: pictureUrl,
     };
 
     if (existingAccount) {
