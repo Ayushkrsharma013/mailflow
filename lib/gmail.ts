@@ -1,7 +1,7 @@
 import { decryptToken } from "@/lib/crypto";
 import { refreshAccessToken } from "@/lib/google-auth";
 import { encryptToken } from "@/lib/crypto";
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import type { GmailAccount, GmailMessage } from "@/lib/types";
 
 async function getValidAccessToken(account: GmailAccount): Promise<string | null> {
@@ -16,7 +16,7 @@ async function getValidAccessToken(account: GmailAccount): Promise<string | null
   const newTokens = await refreshAccessToken(refreshToken);
   if (!newTokens) return null;
 
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createSupabaseAdminClient();
   const encryptedAccess = await encryptToken(newTokens.access_token);
   const expiresAt = new Date(Date.now() + newTokens.expires_in * 1000).toISOString();
 

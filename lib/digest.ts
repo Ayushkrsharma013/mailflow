@@ -1,10 +1,10 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { fetchUnreadMessages, fetchSentMessages, archiveMessage } from "@/lib/gmail";
 import { categorizeEmails, draftReplyWithTone, generateDigestSummary } from "@/lib/categorize";
 import type { GmailAccount, DigestEmail, MailflowAction, DigestNotificationPayload } from "@/lib/types";
 
 export async function runDigestForUser(userId: string): Promise<{ digestId: string | null; notification: DigestNotificationPayload | null; error?: string }> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = await createSupabaseAdminClient();
 
   const { data: accounts, error: acctError } = await supabase
     .from("gmail_accounts")
