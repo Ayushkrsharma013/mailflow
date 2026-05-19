@@ -1,9 +1,9 @@
-import { createSupabaseServerClient } from "@/lib/supabase/server";
+import { createSupabaseAdminClient } from "@/lib/supabase/admin";
 import { sendReply, archiveMessage, snoozeMessage } from "@/lib/gmail";
 import type { MailflowAction, GmailAccount } from "@/lib/types";
 
 export async function executeAction(action: MailflowAction): Promise<{ success: boolean; error?: string }> {
-  const supabase = await createSupabaseServerClient();
+  const supabase = createSupabaseAdminClient();
 
   const { data: digestEmail } = await supabase
     .from("digest_emails")
