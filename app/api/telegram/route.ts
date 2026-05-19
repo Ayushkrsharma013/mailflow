@@ -10,6 +10,12 @@ function getAdminClient() {
   return createClient(url, key);
 }
 
+const MAIN_KEYBOARD = {
+  keyboard: [[{ text: "📬 Check Inbox" }]],
+  resize_keyboard: true,
+  persistent: true,
+};
+
 export async function POST(req: NextRequest) {
   try {
     const body = (await req.json()) as Record<string, unknown>;
@@ -60,9 +66,9 @@ export async function POST(req: NextRequest) {
         if (!settings) {
           await sendTelegramReply(chatId, "Your Telegram account is not linked. Go to MailFlow Settings to link it.");
         } else {
-          await sendTelegramReply(chatId, "✅ Your MailFlow account is linked! Send /check-inbox to run your digest.");
+          await sendTelegramReply(chatId, "✅ Your MailFlow account is linked! Tap the button below to check your inbox.", MAIN_KEYBOARD);
         }
-      } else if (text === "/check-inbox") {
+      } else if (text === "/check-inbox" || text === "📬 Check Inbox") {
         const supabase = getAdminClient();
         const { data: settings } = await supabase
           .from("mailflow_settings")
@@ -82,7 +88,7 @@ export async function POST(req: NextRequest) {
           }
         }
       } else {
-        await sendTelegramReply(chatId, "Use /check-inbox to run a digest.");
+        await sendTelegramReply(chatId, "Tap the button below to check your inbox.", MAIN_KEYBOARD);
       }
     }
 
@@ -118,12 +124,12 @@ async function handleTelegramApproval(actionId: string, status: "approved" | "re
   return { success: true };
 }
 
-async function sendTelegramReply(chatId: string, text: string): Promise<void> {
+async function sendTelegramReply(chatId: string, text: string, replyMarkup?: Record<string, unknown>): Promise<void> {
   const token = process.env.TELEGRAM_BOT_TOKEN;
   if (!token) return;
   await fetch(`https://api.telegram.org/bot${token}/sendMessage`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
-    body: JSON.stringify({ chat_id: chatId, text }),
+    body: JSON.stringify({ chat_id: chatId, text, ...(replyMarkup ? { reply_markup: replyMarkup } : {}) }),
   });
 }
