@@ -8,6 +8,9 @@ export interface GmailAccount {
   is_active: boolean;
   last_synced_at: string | null;
   picture_url: string | null;
+  gmail_history_id: string | null;
+  watch_expiry: string | null;
+  watch_resource_id: string | null;
   created_at: string;
 }
 
