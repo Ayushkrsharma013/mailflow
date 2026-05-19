@@ -148,6 +148,48 @@ export async function notifyTelegramActionResolved(
   });
 }
 
+export async function sendUrgentAlertTelegram(
+  chatId: string,
+  email: {
+    category: string;
+    from_name: string | null;
+    from_email: string | null;
+    subject: string | null;
+    ai_summary: string | null;
+    snippet: string | null;
+    ai_draft_reply: string | null;
+  },
+  actionId: string | null
+): Promise<void> {
+  const token = process.env.TELEGRAM_BOT_TOKEN;
+  if (!token) return;
+
+  const emoji = email.category === "urgent" ? "🔴" : "🟡";
+  const label = email.category === "urgent" ? "Urgent Email" : "Action Needed";
+  const preview = email.ai_summary || email.snippet || "";
+
+  let text = `${emoji} *New ${label}*\n\n*From:* ${email.from_name || email.from_email || "Unknown"}\n*Subject:* ${email.subject || "(no subject)"}\n\n${preview.slice(0, 200)}`;
+
+  const body: Record<string, unknown> = { chat_id: chatId, text, parse_mode: "Markdown" };
+
+  if (actionId && email.category === "action_needed" && email.ai_draft_reply) {
+    text += `\n\n*Draft reply:*\n${email.ai_draft_reply.slice(0, 300)}`;
+    body.text = text;
+    body.reply_markup = {
+      inline_keyboard: [[
+        { text: "Approve ✅", callback_data: `approve:${actionId}` },
+        { text: "Reject ❌",  callback_data: `reject:${actionId}` },
+      ]],
+    };
+  }
+
+  await fetch(`${TELEGRAM_API}${token}/sendMessage`, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(body),
+  });
+}
+
 function getTimeLabel(): string {
   const hour = new Date().getHours();
   if (hour < 12) return "Morning";

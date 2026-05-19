@@ -2,7 +2,9 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { exchangeCodeForTokens } from "@/lib/google-auth";
 import { encryptToken } from "@/lib/crypto";
-import { runDigestForUser } from "@/lib/digest";
+import { runDigestForUser, backfillAccount } from "@/lib/digest";
+import { registerGmailWatch } from "@/lib/gmail";
+import type { GmailAccount } from "@/lib/types";
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
@@ -74,10 +76,32 @@ export async function GET(req: NextRequest) {
         .insert(accountPayload);
     }
 
-    // Kick off first digest in background — don't block the redirect
-    runDigestForUser(user.id).catch((err) => {
-      console.error("[OAuth callback] First digest error:", err);
-    });
+    // Fetch the saved account to pass to watch/backfill functions
+    const { data: savedAccount } = await supabase
+      .from("gmail_accounts")
+      .select("*")
+      .eq("user_id", user.id)
+      .eq("email", email)
+      .maybeSingle();
+
+    if (savedAccount) {
+      const gmailAccount = savedAccount as unknown as GmailAccount;
+
+      // Register Gmail Push watch for real-time notifications
+      registerGmailWatch(gmailAccount).catch(err => {
+        console.error("[OAuth callback] Watch registration error:", err);
+      });
+
+      // Historical backfill in background — categorizes last 90 days
+      backfillAccount(gmailAccount).catch(err => {
+        console.error("[OAuth callback] Backfill error:", err);
+      });
+    } else {
+      // Fallback if account fetch fails
+      runDigestForUser(user.id).catch(err => {
+        console.error("[OAuth callback] First digest error:", err);
+      });
+    }
 
     // Update onboarding progress — mark Gmail connection step complete
     const { data: existingProgress } = await supabase
