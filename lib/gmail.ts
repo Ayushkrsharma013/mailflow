@@ -48,6 +48,11 @@ async function gmailRequest(account: GmailAccount, path: string, options: Reques
 
 export async function fetchUnreadMessages(account: GmailAccount, maxResults = 100): Promise<GmailMessage[]> {
   const res = await gmailRequest(account, `/messages?q=is:unread%20newer_than:2d&maxResults=${maxResults}`);
+  if (!res.ok) {
+    const errData = (await res.json()) as Record<string, unknown>;
+    console.error(`[Gmail] fetchUnreadMessages failed for ${account.email} (${res.status}):`, JSON.stringify(errData));
+    return [];
+  }
   const data = (await res.json()) as { messages?: { id: string; threadId: string }[] };
   if (!data.messages) return [];
 
