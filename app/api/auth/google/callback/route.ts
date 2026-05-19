@@ -29,15 +29,15 @@ export async function GET(req: NextRequest) {
       return NextResponse.redirect(new URL("/mailflow/login", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
     }
 
-    const profileRes = await fetch("https://www.googleapis.com/gmail/v1/users/me/profile", {
+    const profileRes = await fetch("https://www.googleapis.com/oauth2/v2/userinfo", {
       headers: { Authorization: `Bearer ${result.tokens.access_token}` },
     });
     const profileData = (await profileRes.json()) as Record<string, unknown>;
-    console.log("[OAuth callback] Gmail profile response:", JSON.stringify(profileData));
+    console.log("[OAuth callback] userinfo response:", JSON.stringify(profileData));
     if (!profileRes.ok) {
       return NextResponse.redirect(new URL("/mailflow/accounts?error=profile_fetch_failed", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
     }
-    const email = (profileData.emailAddress as string) || "unknown@gmail.com";
+    const email = (profileData.email as string) || "unknown@gmail.com";
 
     const encryptedRefresh = await encryptToken(result.tokens.refresh_token);
     const encryptedAccess = await encryptToken(result.tokens.access_token);
