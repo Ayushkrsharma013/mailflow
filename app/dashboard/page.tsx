@@ -53,7 +53,7 @@ export default function DashboardPage() {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [data, setData] = useState<{ digest: Record<string, any>; emails: any[]; actions: any[] } | null>(null)
   const [stats, setStats] = useState<{ emailsToday: number; accounts: number; pending: number; handled: number } | null>(null)
-  const [accounts, setAccounts] = useState<{ id: string; email: string; is_active: boolean }[]>([])
+  const [accounts, setAccounts] = useState<{ id: string; email: string; is_active: boolean; picture_url?: string | null }[]>([])
   const [activeAccountId, setActiveAccountId] = useState<string | null>(null)
   const [loading, setLoading] = useState(true)
   const [running, setRunning] = useState(false)
@@ -71,7 +71,7 @@ export default function DashboardPage() {
       // Derive stats
       const accountsRes = await fetch("/mailflow/api/gmail/accounts")
       const accountsData = await accountsRes.json()
-      const allAccounts: { id: string; email: string; is_active: boolean }[] = accountsData.accounts || []
+      const allAccounts: { id: string; email: string; is_active: boolean; picture_url?: string | null }[] = accountsData.accounts || []
       setAccounts(allAccounts)
       const activeCount = allAccounts.filter(a => a.is_active).length
       const pending = (json.actions || []).filter((a: { status: string }) => a.status === "pending").length

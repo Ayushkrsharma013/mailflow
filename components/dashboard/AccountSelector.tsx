@@ -1,9 +1,9 @@
 "use client"
 
-import { Mail } from "lucide-react"
+import { Inbox } from "lucide-react"
 
 interface Props {
-  accounts: { id: string; email: string }[]
+  accounts: { id: string; email: string; picture_url?: string | null }[]
   emails: { account_id: string }[]
   activeId: string | null
   onSelect: (id: string | null) => void
@@ -15,8 +15,8 @@ export default function AccountSelector({ accounts, emails, activeId, onSelect }
   const countFor = (id: string) => emails.filter(e => e.account_id === id).length
 
   const tabs = [
-    { id: null as string | null, label: "All", count: emails.length },
-    ...accounts.map(a => ({ id: a.id as string | null, label: a.email, count: countFor(a.id) })),
+    { id: null as string | null, label: "All", count: emails.length, picture: null as string | null },
+    ...accounts.map(a => ({ id: a.id as string | null, label: a.email, count: countFor(a.id), picture: a.picture_url ?? null })),
   ]
 
   return (
@@ -42,8 +42,25 @@ export default function AccountSelector({ accounts, emails, activeId, onSelect }
               if (!active) e.currentTarget.style.borderColor = "rgba(255,255,255,0.08)"
             }}
           >
-            {tab.id !== null && (
-              <Mail size={11} style={{ color: active ? "#00d4ff" : "rgba(221,232,240,0.25)", flexShrink: 0 }} />
+            {tab.id === null ? (
+              <Inbox size={11} style={{ color: active ? "#00d4ff" : "rgba(221,232,240,0.25)", flexShrink: 0 }} />
+            ) : tab.picture ? (
+              <img
+                src={tab.picture}
+                alt=""
+                width={14}
+                height={14}
+                style={{ borderRadius: "50%", flexShrink: 0, objectFit: "cover" }}
+              />
+            ) : (
+              <div style={{
+                width: 14, height: 14, borderRadius: "50%", flexShrink: 0,
+                background: "rgba(0,212,255,0.25)",
+                display: "flex", alignItems: "center", justifyContent: "center",
+                fontSize: 8, color: "#00d4ff", fontWeight: 700,
+              }}>
+                {tab.label[0]?.toUpperCase()}
+              </div>
             )}
             <span style={{
               fontSize: 11, fontFamily: "monospace",
