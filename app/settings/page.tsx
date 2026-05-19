@@ -412,6 +412,40 @@ export default function SettingsPage() {
                 onBlur={e => { e.target.style.borderColor = "rgba(255,255,255,0.06)"; }}
               />
             </div>
+
+            <div style={{ display: "flex", alignItems: "center", gap: 12, paddingTop: 4 }}>
+              <motion.button
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.97 }}
+                onClick={handleSave}
+                disabled={saving}
+                style={{
+                  display: "flex", alignItems: "center", gap: 7,
+                  padding: "8px 20px", borderRadius: 8, border: "none",
+                  background: saved ? "rgba(0,255,136,0.12)" : saving ? "rgba(0,212,255,0.06)" : "linear-gradient(135deg,#00b4db,#0083b0)",
+                  color: saved ? "#00ff88" : saving ? "rgba(0,212,255,0.4)" : "#020a14",
+                  fontSize: 13, fontWeight: 600,
+                  cursor: saving ? "not-allowed" : "pointer",
+                  boxShadow: saved ? "0 0 12px rgba(0,255,136,0.15)" : saving ? "none" : "0 0 20px rgba(0,212,255,0.25)",
+                  fontFamily: "inherit",
+                  transition: "all 0.2s ease",
+                }}
+              >
+                {saved ? <><Check size={13} /> Saved</> : saving ? "Saving..." : "Save Settings"}
+              </motion.button>
+              <AnimatePresence>
+                {saved && (
+                  <motion.span
+                    initial={{ opacity: 0, x: -4 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    exit={{ opacity: 0 }}
+                    style={{ fontSize: 12, color: "#00ff88" }}
+                  >
+                    Settings saved
+                  </motion.span>
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </motion.div>
 

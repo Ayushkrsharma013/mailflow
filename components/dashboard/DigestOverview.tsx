@@ -10,8 +10,14 @@ const CATS = [
   { key: "spam",          label: "Spam",   color: "#64748b" },
 ]
 
-export default function DigestOverview({ digest }: { digest: Record<string, unknown> }) {
-  const categories = (digest.categories as Record<string, number>) || {}
+export default function DigestOverview({ digest, emails }: {
+  digest: Record<string, unknown>
+  emails: { category: string }[]
+}) {
+  const categories = emails.reduce((acc, e) => {
+    acc[e.category] = (acc[e.category] || 0) + 1
+    return acc
+  }, {} as Record<string, number>)
   const total = Object.values(categories).reduce((s, n) => s + (n as number), 0)
 
   return (

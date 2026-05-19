@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { createSupabaseServerClient } from "@/lib/supabase/server";
 import { exchangeCodeForTokens } from "@/lib/google-auth";
 import { encryptToken } from "@/lib/crypto";
+import { runDigestForUser } from "@/lib/digest";
 
 export async function GET(req: NextRequest) {
   const code = req.nextUrl.searchParams.get("code");
@@ -31,8 +32,12 @@ export async function GET(req: NextRequest) {
     const profileRes = await fetch("https://www.googleapis.com/gmail/v1/users/me/profile", {
       headers: { Authorization: `Bearer ${result.tokens.access_token}` },
     });
-    const profile = (await profileRes.json()) as { emailAddress?: string };
-    const email = profile.emailAddress || "unknown@gmail.com";
+    const profileData = (await profileRes.json()) as Record<string, unknown>;
+    console.log("[OAuth callback] Gmail profile response:", JSON.stringify(profileData));
+    if (!profileRes.ok) {
+      return NextResponse.redirect(new URL("/mailflow/accounts?error=profile_fetch_failed", process.env.NEXT_PUBLIC_SITE_URL || req.nextUrl.origin));
+    }
+    const email = (profileData.emailAddress as string) || "unknown@gmail.com";
 
     const encryptedRefresh = await encryptToken(result.tokens.refresh_token);
     const encryptedAccess = await encryptToken(result.tokens.access_token);
@@ -66,6 +71,11 @@ export async function GET(req: NextRequest) {
         .from("gmail_accounts")
         .insert(accountPayload);
     }
+
+    // Kick off first digest in background — don't block the redirect
+    runDigestForUser(user.id).catch((err) => {
+      console.error("[OAuth callback] First digest error:", err);
+    });
 
     // Update onboarding progress — mark Gmail connection step complete
     const { data: existingProgress } = await supabase
